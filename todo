@@ -1,0 +1,34 @@
+TO DO:
+
+- parking
+     ok *implementacja graficzna
+ 
+    ok *implementacja wskaznika pojemnosci
+        *dodanie semaforow
+        *dodanie miejsc parkingowych
+
+- stacja
+    *poszerzenie cech i metod parkingu
+    *dodanie pojazdom mozliwosc tankowania
+    *(opcjonalne) dodanie paskow na kazdym samochodzie odpowiedzialnych za wyswietlanie aktualnej pojemnosci paliwa
+
+-samochod
+    *(opcjonalne) dodanie dzialania jesli malo paliwa to wieksze prawdopodobienstwo ze wybierze stacje a nie parking
+    * dodanie kolizji
+    *implementacja semafora decydujacegp w klasie samochod przez watek
+    *implementacja przemieszczania sie pojazdow na parking
+
+-ramka
+
+    *dodanie tekstur (drogi pojazdy) /opcja gdy nie znajdzie pliku domyslnie ma wczytac kwadraty w roznych kolorach
+    *dodanie przyciskow, wyswietlania aktualnych pojazdow na planszy (listy) - mozliwosc dodania samochodu lub (opcjonalnie na koncu do dodania) usuniecia samochodu
+    
+-optymalizacja
+    *koncowy punkt projektu : refactoring pod wzgledem obiektowosci oraz testy wydajnosci w roznych ustawieniach + refactoring nazewnictwa - usuniecie niepotrzebnych zmiennych skonsolidowanie
+    * dodanie np new do konstruktora
+
+-dokumentacja
+    *stworzenie uml
+    *stworzenie opisu
+    *opisanie klas
+    *spakowanie do zipa
