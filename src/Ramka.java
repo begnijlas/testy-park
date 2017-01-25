@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,7 +37,7 @@ class MiejsceParkingowe {
 
 	public void zwolnijMiejsce() {
 		czyZajete = false;
-		System.out.println("zwolnilem");
+
 	}
 
 	public boolean sprawdzMiejsce() {
@@ -52,8 +54,8 @@ class MiejsceParkingowe {
 	public int zwrocY() {
 		return pozycjaY;
 	}
-	
-	public int zwrocNumer(){
+
+	public int zwrocNumer() {
 		return numer;
 	}
 }
@@ -63,12 +65,13 @@ class Parking extends Thread {
 	private final int Y;
 	JProgressBar pasek = new JProgressBar();
 	private int liczbaSamochodow = 0;
-	private int limitParkingu = 30;
+	private static int limitParkingu = 30;
 	JLabel liczbaLabel = new JLabel("");
 	JLabel limitLabel = new JLabel("/ " + Integer.toString(limitParkingu));
 	int limitWierszy = 2;
 	int limitKolumn = 5;
-	MiejsceParkingowe [] miejscaParkingowe = new MiejsceParkingowe [limitParkingu];
+	MiejsceParkingowe[] miejscaParkingowe = new MiejsceParkingowe[limitParkingu];
+	private static final Semaphore semaforParkingu = new Semaphore(limitParkingu, true);
 
 	public Parking(int x, int y) {
 		this.X = x;
@@ -78,49 +81,62 @@ class Parking extends Thread {
 		stworzMiejsca();
 	}
 
-	
-
-	private void stworzMiejsca(){
-		int j=0;
+	private void stworzMiejsca() {
+		int j = 0;
 		int wiersz = 0;
-		for(int i=0;i<=limitParkingu-1;i++){
-			if(j>limitKolumn){
-				j=0;
+		for (int i = 0; i <= limitParkingu - 1; i++) {
+			if (j > limitKolumn) {
+				j = 0;
 				wiersz++;
 			}
-			miejscaParkingowe[i]= new MiejsceParkingowe(i, X + (j * 35), Y +15+ wiersz *35);
+			miejscaParkingowe[i] = new MiejsceParkingowe(i, X + (j * 35), Y + 15 + wiersz * 35);
 			j++;
-			
+
 		}
 	}
-	
-	public synchronized int zajmijMiejsce(){
-		for(MiejsceParkingowe p : miejscaParkingowe){
-			if(p.sprawdzMiejsce()){
+
+	public synchronized int zajmijMiejsce() {
+		for (MiejsceParkingowe p : miejscaParkingowe) {
+			if (p.sprawdzMiejsce()) {
 				p.zajmijMiejsce();
+				liczbaSamochodow++;
 				return p.zwrocNumer();
 			}
 			
-			
+
 		}
-		return 0;
+		return -1;
+
 	}
 	
-	public int miejsceX(int numer){
+	
+
+	public synchronized boolean sprawdzZajetosc() {
+		if (semaforParkingu.tryAcquire())
+			return true;
+		else
+			return false;
+	}
+
+	public int miejsceX(int numer) {
 		return miejscaParkingowe[numer].zwrocX();
 	}
-	public int miejsceY(int numer){
+
+	public int miejsceY(int numer) {
 		return miejscaParkingowe[numer].zwrocY();
 	}
-	
-	public void zwolnijMiejsce(int numer){
-		
+
+	public synchronized void zwolnijMiejsce(int numer) {
+
 		miejscaParkingowe[numer].zwolnijMiejsce();
 		liczbaSamochodow--;
-		
+		semaforParkingu.release();
+
 	}
-	
-	
+
+	public Semaphore zwrocSemafor() {
+		return semaforParkingu;
+	}
 
 	public void run() {
 
@@ -141,8 +157,8 @@ class Parking extends Thread {
 		pasek.setMinimum(0);
 		pasek.setBounds(X, Y - 50, 150, 20);
 		pasek.setStringPainted(true);
-		liczbaLabel.setBounds(X, Y - 30, 20, 10);
-		limitLabel.setBounds(X + 20, Y - 30, 25, 10);
+		liczbaLabel.setBounds(X + 160, Y - 50, 25, 10);
+		limitLabel.setBounds(X + 180, Y - 50, 35, 10);
 		panel.add(pasek);
 		panel.add(liczbaLabel);
 		panel.add(limitLabel);
@@ -150,38 +166,32 @@ class Parking extends Thread {
 
 	public void rysuj(Graphics g) {
 		g.setColor(Color.GREEN);
-		g.fillRect(X, Y, 210, 210);
+		g.fillRect(X, Y, 210, 190);
 		g.setColor(Color.BLACK);
 		g.drawString("Parking", X + 80, Y + 100);
 
 	}
 
-	public void dodajSamochod() {
-		liczbaSamochodow++;
-	}
-
 }
 
 class Samochod extends Thread {
-	private List<Samochod> samochody;
 	int x, y, predkosc;
 	int czasPauzy = 0;
 	boolean czyRysowac = false;
 	boolean gora = true;
-	boolean[][] droga;
 	boolean zezwolenie = true;
 	int indeks;
 	static int pozycja = 0;
 	boolean zaparkowany = false;
+	private int numerMiejsca = 0;
+	boolean naParkingu = false;
 	Parking parking;
 
-	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, List<Samochod> samochody, Parking parking) {
+	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, Parking parking) {
 		this.czasPauzy = czasPauzy * 5 * indeks;
 		this.x = x;
 		this.y = y;
 		this.predkosc = predkosc;
-		this.samochody = samochody;
-		this.droga = droga;
 		this.indeks = indeks;
 		this.parking = parking;
 		this.start();
@@ -193,7 +203,7 @@ class Samochod extends Thread {
 			g.setColor(Color.GRAY);
 			g.fillRect(x, y, 30, 30);
 			g.setColor(Color.RED);
-			//g.fillRect(x, y, 20, 30);
+			// g.fillRect(x, y, 20, 30);
 			g.drawString(Integer.toString(indeks), x, y);
 
 		}
@@ -203,51 +213,59 @@ class Samochod extends Thread {
 
 		if (czyRysowac && zezwolenie) {
 
-			if (y > 50 && gora)
+			if (y > 250 && gora)
 				y -= predkosc;
 
-			if (x == 350 && !gora) {
-				y += predkosc;
-			}
-
-			if (y == 50) {
+			if (y == 250) {
 				x += predkosc;
 				gora = false;
 			}
-
-			if (y == 350) {
-				x -= predkosc;
-
+			if (x == 1500 && !gora) {
+				y += predkosc;
 			}
 
-			if (x < 20)
+			if (y == 950) {
+				x -= predkosc;
+			}
+
+			if (x == 20)
 				gora = true;
 
 		}
 
 	}
 
+	private void wjedz() {
+		zezwolenie = false;
+		naParkingu = true;
+		numerMiejsca = parking.zajmijMiejsce();
+		x = parking.miejsceX(numerMiejsca);
+		y = parking.miejsceY(numerMiejsca);
+	}
+
+	private void wyjedz() {
+		try {
+			Thread.sleep((int) (Math.random() * (15000 - 5000)) + 5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			parking.zwolnijMiejsce(numerMiejsca);
+			x = -20;
+			y = -20;
+		}
+	}
+
 	public void run() {
 		while (true) {
-			if (y < 250 && x < 30) {
-				zezwolenie = false;
-				
-				int numer = parking.zajmijMiejsce();
-				parking.dodajSamochod();
-				x = parking.miejsceX(numer);
-				y= parking.miejsceY(numer);
-				
-				try {
-					Thread.sleep((int)(Math.random()* (15000 - 5000))+5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}finally{
-					parking.zwolnijMiejsce(numer);
-					x= -20;
-					y=-20;
-					
-				}return;
+			if (y < 270 && x < 30) {
+
+				if (parking.sprawdzZajetosc()) {
+					wjedz();
+					wyjedz();
+					return;
+				} else
+					zezwolenie = true;
 			} else
 				System.out.print("");
 
@@ -268,8 +286,8 @@ class Samochod extends Thread {
 
 public class Ramka extends JPanel {
 
-	private static final int Y_HEIGHT = 500;
-	private static final int X_WIDTH = 400;
+	private static final int Y_HEIGHT = 1000;
+	private static final int X_WIDTH = 1600;
 	private int predkosc = 1;
 	private List<Samochod> samochody;
 	private Timer timer;
@@ -283,7 +301,7 @@ public class Ramka extends JPanel {
 	public Ramka() {
 
 		samochody = stworzListeSamochodow();
-		timer = new Timer(2, new ActionListener() {
+		timer = new Timer(4, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for (Samochod samochod : samochody) {
 					samochod.move();
@@ -301,22 +319,18 @@ public class Ramka extends JPanel {
 			}
 		});
 		/*
-		JButton reset = new JButton("Reset");
-		reset.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				samochody = stworzListeSamochodow();
-				indeks = 1;
-				timer.restart();
-
-			}
-		});
-		*/
+		 * JButton reset = new JButton("Reset"); reset.addActionListener(new
+		 * ActionListener() { public void actionPerformed(ActionEvent e) {
+		 * samochody = stworzListeSamochodow(); indeks = 1; timer.restart();
+		 * 
+		 * } });
+		 */
 
 		panel = new JPanel();
 		JPanel parkingPanel = new JPanel();
 		parking.stworzPasek(parkingPanel);
 		panel.add(start);
-		//panel.add(reset);
+		// panel.add(reset);
 		parkingPanel.setLayout(null);
 		setLayout(new BorderLayout());
 		parkingPanel.setBackground(new Color(0, 0, 0, 0));
@@ -343,8 +357,8 @@ public class Ramka extends JPanel {
 
 	private List<Samochod> stworzListeSamochodow() {
 		List<Samochod> list = new ArrayList<>();
-		for (int i = 0; i < 30; i++) {
-			list.add(new Samochod(czasPauzy, x, y, predkosc, indeks++, samochody, parking));
+		for (int i = 0; i <= 350; i++) {
+			list.add(new Samochod(czasPauzy, x, y, predkosc, indeks++, parking));
 		}
 		return list;
 	}
