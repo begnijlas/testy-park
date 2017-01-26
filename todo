@@ -4,19 +4,23 @@ TO DO:
      ok *implementacja graficzna
  
     ok *implementacja wskaznika pojemnosci
-        *dodanie semaforow
-        *dodanie miejsc parkingowych
+    ok    *dodanie semaforow
+     ok   *dodanie miejsc parkingowych
+    *dostosowac parking tak aby byl mozliwy do rozszerzenia czyli wszystkie pola do inicjalizacji
 
 - stacja
-    *poszerzenie cech i metod parkingu
-    *dodanie pojazdom mozliwosc tankowania
-    *(opcjonalne) dodanie paskow na kazdym samochodzie odpowiedzialnych za wyswietlanie aktualnej pojemnosci paliwa
+  dokonczyc  *poszerzenie cech i metod parkingu
+   ok *dodanie pojazdom mozliwosc tankowania
+
+   
 
 -samochod
     *(opcjonalne) dodanie dzialania jesli malo paliwa to wieksze prawdopodobienstwo ze wybierze stacje a nie parking
     * dodanie kolizji
-    *implementacja semafora decydujacegp w klasie samochod przez watek
-    *implementacja przemieszczania sie pojazdow na parking
+  ok  *implementacja semafora decydujacegp w klasie samochod przez watek
+  ok  *implementacja przemieszczania sie pojazdow na parking
+  ok  *(opcjonalne) dodanie paskow na kazdym samochodzie odpowiedzialnych za wyswietlanie aktualnej pojemnosci paliwa
+      
 
 -ramka
 
@@ -26,6 +30,7 @@ TO DO:
 -optymalizacja
     *koncowy punkt projektu : refactoring pod wzgledem obiektowosci oraz testy wydajnosci w roznych ustawieniach + refactoring nazewnictwa - usuniecie niepotrzebnych zmiennych skonsolidowanie
     * dodanie np new do konstruktora
+    *pomyslec co zrobic z fantem powtarzalnosci kodu w klasie samochod przy stacji 
 
 -dokumentacja
     *stworzenie uml
