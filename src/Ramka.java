@@ -97,7 +97,7 @@ public class Ramka extends JPanel {
 
 	private List<Samochod> stworzListeSamochodow() {
 		List<Samochod> list = new ArrayList<>();
-		for (int i = 0; i <= 100; i++) {
+		for (int i = 0; i <= 30; i++) {
 			list.add(new Samochod(czasPauzy, x, y, predkosc, indeks++, parking,stacja));
 		}
 		return list;

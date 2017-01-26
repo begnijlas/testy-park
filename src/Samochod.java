@@ -85,31 +85,36 @@ class Samochod extends Thread {
 
 	}
 
-	private void wjedzNaParking() {
+	private void wjedz(Parking p) {
 		zezwolenie = false;
-		numerMiejsca = parking.zajmijMiejsce();
-		x = parking.miejsceX(numerMiejsca);
-		y = parking.miejsceY(numerMiejsca);
-		try {
-			Thread.sleep((int) (Math.random() * (15000 - 5000)) + 5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			parking.zwolnijMiejsce(numerMiejsca);
+		numerMiejsca = p.zajmijMiejsce();
+		x = p.miejsceX(numerMiejsca);
+		y = p.miejsceY(numerMiejsca);
+
+		if (p.equals(stacja)) {
+			tankuj();
+			wyjazd = false;
+			p.zwolnijMiejsce(numerMiejsca);
+			x = 1250;
+			y = 400;
+		} else if (p.equals(parking)) {
+			try {
+				Thread.sleep((int) (Math.random() * (15000 - 5000)) + 5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			p.zwolnijMiejsce(numerMiejsca);
 			x = 250;
 			y = 150;
 			wyjazd = true;
-			zezwolenie = true;
 		}
+		zezwolenie = true;
+
 	}
 
-	private void wjedzNaStacje() {
-		zezwolenie = false;
-		numerMiejsca = stacja.zajmijMiejsce();
-		x = stacja.miejsceX(numerMiejsca);
-		y = stacja.miejsceY(numerMiejsca);
-		for(int i=(int)stanBaku;i<pojemnoscBaku;i++){
+	private void tankuj() {
+		for (int i = (int) stanBaku; i < pojemnoscBaku; i++) {
 			stanBaku++;
 			try {
 				Thread.sleep(5);
@@ -117,30 +122,22 @@ class Samochod extends Thread {
 				e.printStackTrace();
 			}
 		}
-			stacja.zwolnijMiejsce(numerMiejsca);
-			x = 1250;
-			y = 400;
-			zezwolenie = true;
-		}
-	
+	}
 
 	public void run() {
 		while (true) {
-			if (y < 260 &&x <140) {
+			if (y < 260 && x < 140) {
 				if (parking.sprawdzZajetosc()) {
-					wjedzNaParking();
+					wjedz(parking);
 					return;
 				} else
 					zezwolenie = true;
-			}else System.out.print("");
-			
-			if(x>1230 && (y>240 && y< 400)){
-				if(stacja.sprawdzZajetosc()){
-					wjedzNaStacje();
-					
-				}
-			}
+			} else if (x > 1230 && (y > 240 && y < 400)) {
+				if (stacja.sprawdzZajetosc()) {
+					wjedz(stacja);
 
+				}
+			}else System.out.print("");
 
 		}
 	}
