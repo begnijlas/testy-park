@@ -81,7 +81,7 @@ class Samochod extends Thread {
 	public void rysuj(Graphics g) {
 		if (czyRysowacFigury) {
 
-			g.setColor(pojazd)
+			g.setColor(pojazd);
 			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
 			if (obliczPaliwo() * 100 > 70)
 				g.setColor(new Color (134,167,112));
