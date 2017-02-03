@@ -78,9 +78,6 @@ public class Ramka extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (opoznienie == 1)
 					zwiekszOpoznienie.setEnabled(false);
-				else
-					zwiekszOpoznienie.setEnabled(true);
-
 				timer.setDelay(opoznienie--);
 
 			}
@@ -91,6 +88,7 @@ public class Ramka extends JPanel {
 
 			public void actionPerformed(ActionEvent e) {
 				timer.setDelay(opoznienie++);
+				zwiekszOpoznienie.setEnabled(true);
 			}
 		});
 
