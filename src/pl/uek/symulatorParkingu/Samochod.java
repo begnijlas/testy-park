@@ -1,5 +1,6 @@
 package pl.uek.symulatorParkingu;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 class Samochod extends Thread {
@@ -86,7 +87,8 @@ class Samochod extends Thread {
 			g.setColor(randomColor);
 			g.fillRect(x, y, dlugoscSamochodu, (int) (obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.WHITE);
-			g.drawString(Integer.toString(indeks), x + 5, y + 20);
+			g.setFont(new Font("Arial", Font.BOLD, 20));
+			g.drawString(Integer.toString(indeks), x, y+30);
 
 		}
 	}
