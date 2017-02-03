@@ -125,7 +125,7 @@ public class Ramka extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.setColor(new Color(255, 245, 157));
+		g.setColor(new Color(246,238,232)); 
 		g.fillRect(0, 0, SZEROKOSC_X, WYSOKOSC_Y);
 		parking.rysuj(g);
 		stacja.rysuj(g);

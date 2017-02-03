@@ -17,6 +17,7 @@ class Parking extends Thread {
 	private MiejsceParkingowe[] miejscaParkingowe;
 	private final Semaphore SEMAFOR;
 	private boolean czerwoneSwiatlo = false;
+	private Color podloze = new Color(216, 202, 192);
 
 	public Parking(String nazwa, int x, int y, int szerokosc, int wysokosc, int limitStanowisk, int limitKolumn,
 			int odstep, JPanel panel) {
@@ -129,7 +130,7 @@ class Parking extends Thread {
 	}
 
 	public void rysuj(Graphics g) {
-		g.setColor(Color.GREEN);
+		g.setColor(podloze);
 		g.fillRect(WSPOLRZEDNA_X, WSPOLRZEDNA_Y, SZEROKOSC, WYSOKOSC);
 		g.setColor(Color.BLACK);
 		g.drawString(nazwa, WSPOLRZEDNA_X + 10, WSPOLRZEDNA_Y - 30);
