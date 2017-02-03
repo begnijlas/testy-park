@@ -14,12 +14,8 @@ class Samochod extends Thread {
 	private Parking parking;
 	private double stanBaku, pojemnoscBaku;
 	StacjaBenzynowa stacja;
-
-	private int R = (int) (Math.random( )*(173-73))+73;
-    	private int G = (int)(Math.random( )*(214-139))+139;
-    	private int B= (int)(Math.random( )*(216-145))+145;
-    	private Color randomColor = new Color(R, G, B);
-    	private Color poziomPaliwa = new Color(44,48,96);
+	private Color pustyBak = new Color(210, 70, 78);
+    	private Color pelnyBak = new Color(85,107,47);
 
 	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, int stanBaku, int pojemnoscBaku,
 			int dlugoscSamochodu, Parking parking, StacjaBenzynowa stacja) {
@@ -82,9 +78,9 @@ class Samochod extends Thread {
 	public void rysuj(Graphics g) {
 		if (czyRysowacFigury) {
 
-			g.setColor(poziomPaliwa);
+			g.setColor(pustyBak);
 			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
-			g.setColor(randomColor);
+			g.setColor(pelnyBak);
 			g.fillRect(x, y, dlugoscSamochodu, (int) (obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", Font.BOLD, 20));
