@@ -1,3 +1,4 @@
+package pl.uek.symulatorParkingu;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,8 +17,8 @@ import javax.swing.Timer;
 @SuppressWarnings("serial")
 public class Ramka extends JPanel {
 
-	private static final int WYSOKOSC_Y = 800;
-	private static final int SZEROKOSC_X = 1300;
+	private final int WYSOKOSC_Y = 800;
+	private final int SZEROKOSC_X = 1300;
 	private int predkosc = 1;
 	private int dlugoscSamochodu = 30;
 	private int odstep = dlugoscSamochodu / 2;
@@ -43,7 +44,7 @@ public class Ramka extends JPanel {
 		timer = new Timer(opoznienie, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for (Samochod samochod : samochody) {
-					samochod.move();
+					samochod.jedz();
 					samochod.zmniejszPauze();
 					repaint();
 
@@ -114,6 +115,15 @@ public class Ramka extends JPanel {
 		add(panelPaskow);
 	}
 
+	private List<Samochod> stworzListeSamochodow() {
+		List<Samochod> listaSamochodow = new ArrayList<>();
+		for (int i = 1; i <= liczbaSamochodow; i++) {
+			listaSamochodow.add(new Samochod(czasPauzy, poczatkowyX, poczatkowyY, predkosc, indeks++,
+					((int) (Math.random() * (10000 - 5000)) + 5000), 10000, dlugoscSamochodu, parking, stacja));
+		}
+		return listaSamochodow;
+	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -130,15 +140,6 @@ public class Ramka extends JPanel {
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(SZEROKOSC_X, WYSOKOSC_Y);
-	}
-
-	private List<Samochod> stworzListeSamochodow() {
-		List<Samochod> listaSamochodow = new ArrayList<>();
-		for (int i = 0; i <= liczbaSamochodow; i++) {
-			listaSamochodow.add(new Samochod(czasPauzy, poczatkowyX, poczatkowyY, predkosc, indeks++,
-					((int) (Math.random() * (10000 - 5000)) + 5000), 10000, dlugoscSamochodu, parking, stacja));
-		}
-		return listaSamochodow;
 	}
 
 	public static void main(String[] args) {

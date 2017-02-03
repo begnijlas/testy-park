@@ -1,3 +1,4 @@
+package pl.uek.symulatorParkingu;
 
 class MiejsceParkingowe {
 	private int numer;

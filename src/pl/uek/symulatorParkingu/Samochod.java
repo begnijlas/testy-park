@@ -1,7 +1,6 @@
+package pl.uek.symulatorParkingu;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 class Samochod extends Thread {
 	private int x, y, predkosc, indeks, dlugoscSamochodu;
@@ -30,6 +29,49 @@ class Samochod extends Thread {
 		this.start();
 	}
 
+
+	private void wjedz(Parking p) {
+		zezwolenie = false;
+		int numerMiejsca = p.zajmijMiejsce();
+		x = p.miejsceX(numerMiejsca);
+		y = p.miejsceY(numerMiejsca);
+
+		if (p.equals(stacja)) {
+			tankuj();
+			wyjazd = false;
+			p.zwolnijMiejsce(numerMiejsca);
+			x = 1050;
+			y = 350;
+		} else if (p.equals(parking)) {
+			try {
+				Thread.sleep((int) (Math.random() * (20000 - 10000)) + 10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			p.zwolnijMiejsce(numerMiejsca);
+			x = 250;
+			y = 150;
+			wyjazd = true;
+		}
+		zezwolenie = true;
+
+	}
+
+	private void tankuj() {
+		for (int i = (int) stanBaku; i < pojemnoscBaku; i++) {
+			stanBaku++;
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private double obliczPaliwo() {
+		double procentBaku = 0;
+		return procentBaku = (stanBaku / pojemnoscBaku);
+	}
 	public void rysuj(Graphics g) {
 		if (czyRysowacFigury) {
 
@@ -42,8 +84,33 @@ class Samochod extends Thread {
 
 		}
 	}
+	
+	public void run() {
+		while (true) {
 
-	public void move() {
+			if (y < 295 && x < 50) {
+				if (parking.sprawdzZajetosc()) {
+					wjedz(parking);
+					return;
+				} else
+					zezwolenie = true;
+			} else if (x > 950 && (y > 240 && y < 300)) {
+				if (stacja.sprawdzZajetosc()) {
+					wjedz(stacja);
+
+				}
+			} else
+				System.out.print("");
+
+			if (y == 130) {
+				czyRysowacFigury = false;
+				zakoncz = true;
+				this.interrupt();
+			}
+		}
+	}
+
+	public void jedz() {
 
 		if (czyRysowacFigury && zezwolenie) {
 			stanBaku--;
@@ -74,74 +141,6 @@ class Samochod extends Thread {
 		}
 	}
 
-	private void wjedz(Parking p) {
-		zezwolenie = false;
-		int numerMiejsca = p.zajmijMiejsce();
-		x = p.miejsceX(numerMiejsca);
-		y = p.miejsceY(numerMiejsca);
-
-		if (p.equals(stacja)) {
-			tankuj();
-			wyjazd = false;
-			p.zwolnijMiejsce(numerMiejsca);
-			x = 1050;
-			y = 350;
-		} else if (p.equals(parking)) {
-			try {
-				Thread.sleep((int) (Math.random() * (15000 - 10000)) + 10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			p.zwolnijMiejsce(numerMiejsca);
-			x = 250;
-			y = 150;
-			wyjazd = true;
-		}
-		zezwolenie = true;
-
-	}
-
-	public void run() {
-		while (true) {
-
-			if (y < 295 && x < 50) {
-				if (parking.sprawdzZajetosc()) {
-					wjedz(parking);
-					return;
-				} else
-					zezwolenie = true;
-			} else if (x > 950 && (y > 240 && y < 300)) {
-				if (stacja.sprawdzZajetosc()) {
-					wjedz(stacja);
-
-				}
-			} else
-				System.out.print("");
-
-			if (y == 130) {
-				czyRysowacFigury = false;
-				zakoncz = true;
-				this.interrupt();
-			}
-		}
-	}
-
-	private void tankuj() {
-		for (int i = (int) stanBaku; i < pojemnoscBaku; i++) {
-			stanBaku++;
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private double obliczPaliwo() {
-		double procentBaku = 0;
-		return procentBaku = (stanBaku / pojemnoscBaku);
-	}
-
 	public void zmniejszPauze() {
 		if (czasPauzy <= 0) {
 			czyRysowacFigury = true;
@@ -154,5 +153,7 @@ class Samochod extends Thread {
 		if(zakoncz) return true;
 		else return false;
 	}
+	
+	
 
 }
