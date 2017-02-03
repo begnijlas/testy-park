@@ -2,23 +2,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-
-
 
 @SuppressWarnings("serial")
 public class Ramka extends JPanel {
@@ -26,36 +19,42 @@ public class Ramka extends JPanel {
 	private static final int WYSOKOSC_Y = 800;
 	private static final int SZEROKOSC_X = 1300;
 	private int predkosc = 1;
-	private List<Samochod> samochody;
-	private Timer timer;
+	private int dlugoscSamochodu = 30;
+	private int odstep = dlugoscSamochodu / 2;
+	private int opoznienie = 5;
 	private int poczatkowyX = 20;
 	private int poczatkowyY = 1000;
 	private int czasPauzy = 10;
 	private int indeks = 1;
+	private int liczbaSamochodow = 40;
+	private Timer timer;
 	private Parking parking;
 	private StacjaBenzynowa stacja;
-	private int dlugoscSamochodu = 30;
-	private int odstep = dlugoscSamochodu /2;
+	private List<Samochod> samochody;
+
 	public Ramka() {
 		stworzTimer();
 		stworzPanelGorny();
 		stworzPanelPaskow();
-		samochody = stworzListeSamochodow();	
+		samochody = stworzListeSamochodow();
 	}
 
-	private void stworzTimer(){
-		timer = new Timer(5, new ActionListener() {
+	private void stworzTimer() {
+		timer = new Timer(opoznienie, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for (Samochod samochod : samochody) {
 					samochod.move();
 					samochod.zmniejszPauze();
 					repaint();
+
 				}
+
 			}
 		});
 	}
-	
-	private void stworzPanelGorny(){
+
+	private void stworzPanelGorny() {
+
 		JButton start = new JButton("Start");
 		start.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -63,31 +62,67 @@ public class Ramka extends JPanel {
 
 			}
 		});
-		
+
+		JButton dodaj = new JButton("Dodaj samochod");
+		dodaj.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				samochody.add(new Samochod(0, poczatkowyX, poczatkowyY, predkosc, indeks++,
+						((int) (Math.random() * (10000 - 5000)) + 5000), 10000, dlugoscSamochodu, parking, stacja));
+
+			}
+		});
+
+		JButton zwiekszOpoznienie = new JButton("+");
+		zwiekszOpoznienie.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (opoznienie == 1)
+					zwiekszOpoznienie.setEnabled(false);
+				else
+					zwiekszOpoznienie.setEnabled(true);
+
+				timer.setDelay(opoznienie--);
+
+			}
+		});
+
+		JButton zmniejszOpoznienie = new JButton("-");
+		zmniejszOpoznienie.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				timer.setDelay(opoznienie++);
+			}
+		});
+
 		JPanel panelGorny = new JPanel();
+		JLabel wybierzPredkosc = new JLabel("Zmień prędkość:  ");
 		panelGorny.add(start);
+		panelGorny.add(dodaj);
+		panelGorny.add(wybierzPredkosc);
+		panelGorny.add(zwiekszOpoznienie);
+		panelGorny.add(zmniejszOpoznienie);
+
 		setLayout(new BorderLayout());
 		add(panelGorny, BorderLayout.PAGE_START);
 	}
-	
-	private void stworzPanelPaskow(){
+
+	private void stworzPanelPaskow() {
 		JPanel panelPaskow = new JPanel();
-		parking = new Parking("Parking",10, 50,230,190,20,5,odstep,panelPaskow);
-		stacja = new StacjaBenzynowa("Stacja benzynowa",1000,200,130,150,6,1,odstep,panelPaskow);
+		parking = new Parking("Parking", 10, 90, 230, 200, 20, 5, odstep, panelPaskow);
+		stacja = new StacjaBenzynowa("Stacja benzynowa", 1010, 210, 100, 150, 6, 1, odstep, panelPaskow);
 		panelPaskow.setLayout(null);
 		panelPaskow.setBackground(new Color(0, 0, 0, 0));
 		add(panelPaskow);
 	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.setColor(Color.WHITE);
-		g.fillRect(0,0, SZEROKOSC_X, WYSOKOSC_Y);
+		g.setColor(new Color(255, 245, 157));
+		g.fillRect(0, 0, SZEROKOSC_X, WYSOKOSC_Y);
 		parking.rysuj(g);
 		stacja.rysuj(g);
 		for (Samochod samochod : samochody) {
 			samochod.rysuj(g);
-		
 
 		}
 	}
@@ -99,8 +134,9 @@ public class Ramka extends JPanel {
 
 	private List<Samochod> stworzListeSamochodow() {
 		List<Samochod> listaSamochodow = new ArrayList<>();
-		for (int i = 0; i <= 30; i++) {
-			listaSamochodow.add(new Samochod(czasPauzy, poczatkowyX, poczatkowyY, predkosc, indeks++, ((int)(Math.random()*(10000-5000))+5000), 10000, dlugoscSamochodu, parking,stacja));
+		for (int i = 0; i <= liczbaSamochodow; i++) {
+			listaSamochodow.add(new Samochod(czasPauzy, poczatkowyX, poczatkowyY, predkosc, indeks++,
+					((int) (Math.random() * (10000 - 5000)) + 5000), 10000, dlugoscSamochodu, parking, stacja));
 		}
 		return listaSamochodow;
 	}
@@ -111,6 +147,8 @@ public class Ramka extends JPanel {
 				JFrame frame = new JFrame();
 				frame.add(new Ramka());
 				frame.pack();
+				frame.setTitle("Symulacja parkingu - Karolina Tokarz, Wojciech Rzemieniuk");
+				frame.setResizable(false);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
 			}

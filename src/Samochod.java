@@ -4,29 +4,30 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 class Samochod extends Thread {
-	private int x, y, predkosc,indeks,dlugoscSamochodu;
+	private int x, y, predkosc, indeks, dlugoscSamochodu;
 	private int czasPauzy = 0;
 	private boolean czyRysowacFigury = false;
 	private boolean jedzieWgore = true;
 	private boolean zezwolenie = true;
-	boolean wyjazd = false;
+	private boolean wyjazd = false;
+	private boolean zakoncz = false;
 	private Parking parking;
-	private double stanBaku,pojemnoscBaku;
+	private double stanBaku, pojemnoscBaku;
 	StacjaBenzynowa stacja;
 
-	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks,int stanBaku,int pojemnoscBaku,int dlugoscSamochodu ,Parking parking, StacjaBenzynowa stacja) {
-		this.czasPauzy = czasPauzy * 5 * indeks;
+	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, int stanBaku, int pojemnoscBaku,
+			int dlugoscSamochodu, Parking parking, StacjaBenzynowa stacja) {
+		this.czasPauzy = czasPauzy * indeks *5;
 		this.x = x;
-		this.y = y + 5 * indeks;
+		this.y = y;
 		this.predkosc = predkosc;
 		this.indeks = indeks;
-		this.stanBaku=stanBaku;
-		this.pojemnoscBaku=pojemnoscBaku;
-		this.dlugoscSamochodu=dlugoscSamochodu;
+		this.stanBaku = stanBaku;
+		this.pojemnoscBaku = pojemnoscBaku;
+		this.dlugoscSamochodu = dlugoscSamochodu;
 		this.parking = parking;
 		this.stacja = stacja;
 		this.start();
-
 	}
 
 	public void rysuj(Graphics g) {
@@ -35,47 +36,42 @@ class Samochod extends Thread {
 			g.setColor(Color.GRAY);
 			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
 			g.setColor(Color.YELLOW);
-			g.fillRect(x, y, dlugoscSamochodu, (int)(obliczPaliwo() * dlugoscSamochodu));
+			g.fillRect(x, y, dlugoscSamochodu, (int) (obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.RED);
-			
 			g.drawString(Integer.toString(indeks), x + 5, y + 20);
 
 		}
-	}
-
-	private double obliczPaliwo() {
-		double procentBaku=0;
-		return procentBaku = (stanBaku / pojemnoscBaku);
 	}
 
 	public void move() {
 
 		if (czyRysowacFigury && zezwolenie) {
 			stanBaku--;
-			if (y > 250 && jedzieWgore)
-				y -= predkosc;
 
-			if (y == 250) {
-				x += predkosc;
-				jedzieWgore = false;
+			if (wyjazd) {
+				if (y == 150) {
+					x += predkosc;
+				}
+				if (x == 400)
+					y -= predkosc;
+			} else {
+				if (y > 280 && jedzieWgore)
+					y -= predkosc;
+
+				if (y <= 290) {
+					x += predkosc;
+					jedzieWgore = false;
+				}
+				if (y == 750 && x > 20) {
+					x -= predkosc;
+				}
+				if (x >= 970 && y < 750 && !jedzieWgore) {
+					y += predkosc;
+				}
+				if (x == 20)
+					jedzieWgore = true;
 			}
-			if (x == 1250 && !jedzieWgore) {
-				y += predkosc;
-			}
-
-			if (y == 950) {
-				x -= predkosc;
-			}
-
-			if (x == 20)
-				jedzieWgore = true;
-
-			if (y == 150 && x < 500 && wyjazd) {
-				x += predkosc;
-			} else if (x == 500 && wyjazd)
-				y -= predkosc;
 		}
-
 	}
 
 	private void wjedz(Parking p) {
@@ -88,13 +84,12 @@ class Samochod extends Thread {
 			tankuj();
 			wyjazd = false;
 			p.zwolnijMiejsce(numerMiejsca);
-			x = 1250;
-			y = 400;
+			x = 1050;
+			y = 350;
 		} else if (p.equals(parking)) {
 			try {
-				Thread.sleep((int) (Math.random() * (15000 - 5000)) + 5000);
+				Thread.sleep((int) (Math.random() * (15000 - 10000)) + 10000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			p.zwolnijMiejsce(numerMiejsca);
@@ -106,36 +101,46 @@ class Samochod extends Thread {
 
 	}
 
+	public void run() {
+		while (true) {
+
+			if (y < 295 && x < 50) {
+				if (parking.sprawdzZajetosc()) {
+					wjedz(parking);
+					return;
+				} else
+					zezwolenie = true;
+			} else if (x > 950 && (y > 240 && y < 300)) {
+				if (stacja.sprawdzZajetosc()) {
+					wjedz(stacja);
+
+				}
+			} else
+				System.out.print("");
+
+			if (y == 130) {
+				czyRysowacFigury = false;
+				zakoncz = true;
+				this.interrupt();
+			}
+		}
+	}
+
 	private void tankuj() {
 		for (int i = (int) stanBaku; i < pojemnoscBaku; i++) {
 			stanBaku++;
 			try {
-				Thread.sleep(5);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public void run() {
-		while (true) {
-			if (y < 260 && x < 140) {
-				if (parking.sprawdzZajetosc()) {
-					wjedz(parking);
-					return;
-				} else
-					zezwolenie = true;
-			} else if (x > 1230 && (y > 240 && y < 400)) {
-				if (stacja.sprawdzZajetosc()) {
-					wjedz(stacja);
-
-				}
-			}else System.out.print("");
-			
-			
-			}
-		}
-	
+	private double obliczPaliwo() {
+		double procentBaku = 0;
+		return procentBaku = (stanBaku / pojemnoscBaku);
+	}
 
 	public void zmniejszPauze() {
 		if (czasPauzy <= 0) {
@@ -143,6 +148,11 @@ class Samochod extends Thread {
 		} else {
 			czasPauzy--;
 		}
+	}
+	
+	public boolean usunSamochod(){
+		if(zakoncz) return true;
+		else return false;
 	}
 
 }
