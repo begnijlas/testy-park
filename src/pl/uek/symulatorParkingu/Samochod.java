@@ -1,4 +1,5 @@
 package pl.uek.symulatorParkingu;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -6,20 +7,18 @@ import java.awt.Graphics;
 class Samochod extends Thread {
 	private int x, y, predkosc, indeks, dlugoscSamochodu;
 	private int czasPauzy = 0;
+	private double stanBaku, pojemnoscBaku;
 	private boolean czyRysowacFigury = false;
 	private boolean jedzieWgore = true;
 	private boolean zezwolenie = true;
 	private boolean wyjazd = false;
 	private boolean zakoncz = false;
 	private Parking parking;
-	private double stanBaku, pojemnoscBaku;
-	StacjaBenzynowa stacja;
-	private Color pustyBak = new Color(210, 70, 78);
-    	private Color pelnyBak = new Color(85,107,47);
+	private StacjaBenzynowa stacja;
 
 	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, int stanBaku, int pojemnoscBaku,
 			int dlugoscSamochodu, Parking parking, StacjaBenzynowa stacja) {
-		this.czasPauzy = czasPauzy * indeks *5;
+		this.czasPauzy = czasPauzy * indeks * 5;
 		this.x = x;
 		this.y = y;
 		this.predkosc = predkosc;
@@ -31,7 +30,6 @@ class Samochod extends Thread {
 		this.stacja = stacja;
 		this.start();
 	}
-
 
 	private void wjedz(Parking p) {
 		zezwolenie = false;
@@ -75,20 +73,26 @@ class Samochod extends Thread {
 		double procentBaku = 0;
 		return procentBaku = (stanBaku / pojemnoscBaku);
 	}
+
 	public void rysuj(Graphics g) {
 		if (czyRysowacFigury) {
 
-			g.setColor(pustyBak);
+			g.setColor(new Color(2, 3, 5));
 			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
-			g.setColor(pelnyBak);
+			if (obliczPaliwo() * 100 > 70)
+				g.setColor(Color.GREEN);
+			else if (obliczPaliwo() * 100 <= 70 && obliczPaliwo() * 100 > 30)
+				g.setColor(Color.YELLOW);
+			else
+				g.setColor(Color.RED);
 			g.fillRect(x, y, dlugoscSamochodu, (int) (obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", Font.BOLD, 20));
-			g.drawString(Integer.toString(indeks), x, y+30);
+			g.drawString(Integer.toString(indeks), x, y + 30);
 
 		}
 	}
-	
+
 	public void run() {
 		while (true) {
 
@@ -152,12 +156,12 @@ class Samochod extends Thread {
 			czasPauzy--;
 		}
 	}
-	
-	public boolean usunSamochod(){
-		if(zakoncz) return true;
-		else return false;
+
+	public boolean usunSamochod() {
+		if (zakoncz)
+			return true;
+		else
+			return false;
 	}
-	
-	
 
 }
