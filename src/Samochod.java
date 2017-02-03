@@ -4,69 +4,62 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 class Samochod extends Thread {
-	int x, y, predkosc;
-	int czasPauzy = 0;
-	boolean czyRysowac = false;
-	boolean gora = true;
-	boolean zezwolenie = true;
-	int indeks;
-	static int pozycja = 0;
-	boolean zaparkowany = false;
-	private int numerMiejsca = 0;
+	private int x, y, predkosc,indeks,dlugoscSamochodu;
+	private int czasPauzy = 0;
+	private boolean czyRysowacFigury = false;
+	private boolean jedzieWgore = true;
+	private boolean zezwolenie = true;
 	boolean wyjazd = false;
-	Parking parking;
-	Rectangle samochod;
-	double stanBaku = 6000;
-	double pojemnoscBaku = 6000;
-	double procentBaku;
+	private Parking parking;
+	private double stanBaku,pojemnoscBaku;
 	StacjaBenzynowa stacja;
 
-	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, Parking parking, StacjaBenzynowa stacja) {
+	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks,int stanBaku,int pojemnoscBaku,int dlugoscSamochodu ,Parking parking, StacjaBenzynowa stacja) {
 		this.czasPauzy = czasPauzy * 5 * indeks;
 		this.x = x;
 		this.y = y + 5 * indeks;
 		this.predkosc = predkosc;
 		this.indeks = indeks;
+		this.stanBaku=stanBaku;
+		this.pojemnoscBaku=pojemnoscBaku;
+		this.dlugoscSamochodu=dlugoscSamochodu;
 		this.parking = parking;
 		this.stacja = stacja;
-		samochod = new Rectangle(this.x, this.y, 30, 30);
 		this.start();
 
 	}
 
 	public void rysuj(Graphics g) {
-		if (czyRysowac) {
+		if (czyRysowacFigury) {
 
 			g.setColor(Color.GRAY);
-			samochod.setLocation(x, y);
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.fill(samochod);
-			// g.fillRect(x, y, 30, 30);
+			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
 			g.setColor(Color.YELLOW);
-			g.fillRect(x, y, 30, (int) obliczPaliwo());
+			g.fillRect(x, y, dlugoscSamochodu, (int)(obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.RED);
-			// g.fillRect(x, y, 20, 30);
+			
 			g.drawString(Integer.toString(indeks), x + 5, y + 20);
 
 		}
 	}
 
 	private double obliczPaliwo() {
-		return procentBaku = (stanBaku / pojemnoscBaku * 100) / 3;
+		double procentBaku=0;
+		return procentBaku = (stanBaku / pojemnoscBaku);
 	}
 
 	public void move() {
 
-		if (czyRysowac && zezwolenie) {
+		if (czyRysowacFigury && zezwolenie) {
 			stanBaku--;
-			if (y > 250 && gora)
+			if (y > 250 && jedzieWgore)
 				y -= predkosc;
 
 			if (y == 250) {
 				x += predkosc;
-				gora = false;
+				jedzieWgore = false;
 			}
-			if (x == 1250 && !gora) {
+			if (x == 1250 && !jedzieWgore) {
 				y += predkosc;
 			}
 
@@ -75,7 +68,7 @@ class Samochod extends Thread {
 			}
 
 			if (x == 20)
-				gora = true;
+				jedzieWgore = true;
 
 			if (y == 150 && x < 500 && wyjazd) {
 				x += predkosc;
@@ -87,7 +80,7 @@ class Samochod extends Thread {
 
 	private void wjedz(Parking p) {
 		zezwolenie = false;
-		numerMiejsca = p.zajmijMiejsce();
+		int numerMiejsca = p.zajmijMiejsce();
 		x = p.miejsceX(numerMiejsca);
 		y = p.miejsceY(numerMiejsca);
 
@@ -138,17 +131,17 @@ class Samochod extends Thread {
 
 				}
 			}else System.out.print("");
-
+			
+			
+			}
 		}
-	}
+	
 
 	public void zmniejszPauze() {
 		if (czasPauzy <= 0) {
-			czyRysowac = true;
-			// System.out.println("czas pauzy" + czasPauzy);
+			czyRysowacFigury = true;
 		} else {
 			czasPauzy--;
-			// System.out.println("czas pauzy" + czasPauzy);
 		}
 	}
 

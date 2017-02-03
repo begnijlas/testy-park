@@ -7,39 +7,54 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 class Parking extends Thread {
-	private String nazwa="";
-	private final int X;
-	private final int Y;
-	JProgressBar pasek = new JProgressBar();
+	private final int wspolrzednaX,wspolrzednaY,szerokosc,wysokosc;
 	private int liczbaSamochodow = 0;
-	private static int limitParkingu = 10;
-	JLabel liczbaLabel = new JLabel("");
-	JLabel limitLabel = new JLabel("/ " + Integer.toString(limitParkingu));
-	int limitWierszy = 2;
-	int limitKolumn = 5;
-	MiejsceParkingowe[] miejscaParkingowe = new MiejsceParkingowe[limitParkingu];
-	private  final Semaphore semaforParkingu = new Semaphore(limitParkingu, true);
+	private int limitStanowisk,limitKolumn,sygnalizatorX,sygnalizatorY;
+	private String nazwa;
+	private JProgressBar pasekPostepu;
+	private JLabel iloscSamochodow,limitSamochodow;
+	private MiejsceParkingowe[] miejscaParkingowe;
+	private final Semaphore semaforParkingu;
+	private boolean czerwoneSwiatlo=false;
 
-	public Parking(int x, int y,String nazwa) {
-		this.nazwa=nazwa;
-		this.X = x;
-		this.Y = y;
+	public Parking( String nazwa,int x, int y,int szerokosc,int wysokosc , int limitStanowisk, int limitKolumn,int odstep,JPanel panel) {
+		this.wspolrzednaX = x;
+		this.wspolrzednaY = y;
+		this.szerokosc=szerokosc;
+		this.wysokosc=wysokosc;
+		this.nazwa = nazwa;
+		this.limitStanowisk=limitStanowisk;
+		this.limitKolumn=limitKolumn;
+		
+		
+		pasekPostepu = new JProgressBar();
+		iloscSamochodow = new JLabel("");
+		limitSamochodow = new JLabel("/ " + Integer.toString(limitStanowisk));
+		semaforParkingu = new Semaphore(limitStanowisk, true);
+		
+		stworzMiejsca(odstep);
+		stworzPasek(panel);
+		ustawSygnalizator(wspolrzednaX+55, wspolrzednaY+wysokosc+50);
 		this.setDaemon(true);
 		this.start();
-		stworzMiejsca();
+	}
+	
+	protected void ustawSygnalizator(int x,int y){
+		sygnalizatorX=x;
+		sygnalizatorY=y;
 	}
 
-	private void stworzMiejsca() {
-		int j = 0;
+	private void stworzMiejsca(int odstep) {
+		miejscaParkingowe = new MiejsceParkingowe[limitStanowisk];
+		int kolumna = 0;
 		int wiersz = 0;
-		for (int i = 0; i <= limitParkingu - 1; i++) {
-			if (j > limitKolumn) {
-				j = 0;
+		for (int numerMiejsca = 0; numerMiejsca <= limitStanowisk - 1; numerMiejsca++) {
+			if (kolumna > limitKolumn || kolumna * (30 + odstep) > szerokosc - 10) {
+				kolumna = 0;
 				wiersz++;
 			}
-			miejscaParkingowe[i] = new MiejsceParkingowe(i, X + (j * 35), Y + 15 + wiersz * 35);
-			j++;
-
+			miejscaParkingowe[numerMiejsca] = new MiejsceParkingowe(numerMiejsca, wspolrzednaX + (kolumna * (30 + odstep)) + 10, wspolrzednaY + 10 + wiersz *( 35+odstep));
+			kolumna++;
 		}
 	}
 
@@ -50,7 +65,6 @@ class Parking extends Thread {
 				liczbaSamochodow++;
 				return p.zwrocNumer();
 			}
-
 		}
 		return -1;
 
@@ -79,13 +93,13 @@ class Parking extends Thread {
 
 	}
 
-	
-
 	public void run() {
 
 		while (true) {
-			pasek.setValue(liczbaSamochodow);
-			liczbaLabel.setText(Integer.toString(liczbaSamochodow));
+			pasekPostepu.setValue(liczbaSamochodow);
+			iloscSamochodow.setText(Integer.toString(liczbaSamochodow));
+			if(liczbaSamochodow<limitStanowisk)czerwoneSwiatlo=false;
+			else czerwoneSwiatlo=true;
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -95,23 +109,38 @@ class Parking extends Thread {
 	}
 
 	public void stworzPasek(JPanel panel) {
-		pasek.setValue(0);
-		pasek.setMaximum(limitParkingu);
-		pasek.setMinimum(0);
-		pasek.setBounds(X, Y - 50, 150, 20);
-		pasek.setStringPainted(true);
-		liczbaLabel.setBounds(X + 160, Y - 50, 25, 10);
-		limitLabel.setBounds(X + 180, Y - 50, 35, 10);
-		panel.add(pasek);
-		panel.add(liczbaLabel);
-		panel.add(limitLabel);
+		
+		
+		pasekPostepu.setValue(0);
+		pasekPostepu.setMaximum(limitStanowisk);
+		pasekPostepu.setMinimum(0);
+		pasekPostepu.setBounds(wspolrzednaX, wspolrzednaY - 50, 150, 20);
+		pasekPostepu.setStringPainted(true);
+		
+		iloscSamochodow.setBounds(wspolrzednaX + 160, wspolrzednaY - 50, 25, 10);
+		limitSamochodow.setBounds(wspolrzednaX + 180, wspolrzednaY - 50, 35, 10);
+		
+		panel.add(pasekPostepu);
+		panel.add(iloscSamochodow);
+		panel.add(limitSamochodow);
 	}
+	
+
 
 	public void rysuj(Graphics g) {
 		g.setColor(Color.GREEN);
-		g.fillRect(X, Y, 210, 190);
+		g.fillRect(wspolrzednaX, wspolrzednaY, szerokosc, wysokosc);
 		g.setColor(Color.BLACK);
-		g.drawString(nazwa, X + 80, Y + 100);
+		g.drawString(nazwa, wspolrzednaX+10, wspolrzednaY+30);
+		g.setColor(Color.GRAY);
+		g.fillRect(sygnalizatorX-10,sygnalizatorY, 35, 60);
+		if(czerwoneSwiatlo){
+			g.setColor(Color.RED);
+			g.fillOval(sygnalizatorX, sygnalizatorY, 20, 20);
+		}else{
+			g.setColor(Color.GREEN);
+			g.fillOval(sygnalizatorX, sygnalizatorY + 30, 20, 20);
+		}
 
 	}
 
