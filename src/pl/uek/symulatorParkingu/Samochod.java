@@ -15,7 +15,11 @@ class Samochod extends Thread {
 	private boolean zakoncz = false;
 	private Parking parking;
 	private StacjaBenzynowa stacja;
-
+	private int R = (int) (Math.random( )*(100-60))+60;
+    	private int G = (int)(Math.random( )*(93-50))+50;
+    	private int B= (int)(Math.random( )*(204-120))+120;
+    	private Color pojazd = new Color(R, G, B);
+	
 	public Samochod(int czasPauzy, int x, int y, int predkosc, int indeks, int stanBaku, int pojemnoscBaku,
 			int dlugoscSamochodu, Parking parking, StacjaBenzynowa stacja) {
 		this.czasPauzy = czasPauzy * indeks * 5;
@@ -77,14 +81,14 @@ class Samochod extends Thread {
 	public void rysuj(Graphics g) {
 		if (czyRysowacFigury) {
 
-			g.setColor(new Color(2, 3, 5));
+			g.setColor(pojazd)
 			g.fillRect(x, y, dlugoscSamochodu, dlugoscSamochodu);
 			if (obliczPaliwo() * 100 > 70)
-				g.setColor(Color.GREEN);
+				g.setColor(new Color (134,167,112));
 			else if (obliczPaliwo() * 100 <= 70 && obliczPaliwo() * 100 > 30)
-				g.setColor(Color.YELLOW);
+				g.setColor(new Color(231,194,123));
 			else
-				g.setColor(Color.RED);
+				g.setColor(new Color(180,85,80));
 			g.fillRect(x, y, dlugoscSamochodu, (int) (obliczPaliwo() * dlugoscSamochodu));
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Arial", Font.BOLD, 20));
