@@ -8,9 +8,9 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 class Parking extends Thread {
-	private final int WSPOLRZEDNA_X, WSPOLRZEDNA_Y, SZEROKOSC, WYSOKOSC;
+	private final int WSPOLRZEDNA_X, WSPOLRZEDNA_Y, SZEROKOSC, WYSOKOSC, SYGNALIZATOR_X, SYGNALIZATOR_Y;
 	private int liczbaSamochodow = 0;
-	private int limitStanowisk, limitKolumn, sygnalizatorX, sygnalizatorY;
+	private int limitStanowisk, limitKolumn;
 	private String nazwa;
 	private JProgressBar pasekPostepu;
 	private JLabel iloscSamochodow, limitSamochodow;
@@ -42,8 +42,8 @@ class Parking extends Thread {
 	}
 
 	protected void ustawSygnalizator(int x, int y) {
-		sygnalizatorX = x;
-		sygnalizatorY = y;
+		SYGNALIZATOR_X = x;
+		SYGNALIZATOR_Y = y;
 	}
 
 	private void stworzMiejsca(int odstep) {
@@ -135,13 +135,13 @@ class Parking extends Thread {
 		g.setColor(Color.BLACK);
 		g.drawString(nazwa, WSPOLRZEDNA_X + 10, WSPOLRZEDNA_Y - 30);
 		g.setColor(Color.GRAY);
-		g.fillRect(sygnalizatorX - 7, sygnalizatorY, 35, 60);
+		g.fillRect(SYGNALIZATOR_X - 7, SYGNALIZATOR_Y, 35, 60);
 		if (czerwoneSwiatlo) {
 			g.setColor(Color.RED);
-			g.fillOval(sygnalizatorX, sygnalizatorY, 20, 20);
+			g.fillOval(SYGNALIZATOR_X, SYGNALIZATOR_Y, 20, 20);
 		} else {
 			g.setColor(Color.GREEN);
-			g.fillOval(sygnalizatorX, sygnalizatorY + 30, 20, 20);
+			g.fillOval(SYGNALIZATOR_X, SYGNALIZATOR_Y + 30, 20, 20);
 		}
 
 	}
