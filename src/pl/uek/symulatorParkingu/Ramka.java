@@ -77,7 +77,7 @@ public class Ramka extends JPanel {
 		zwiekszOpoznienie.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (opoznienie == 1)
-					zwiekszOpoznienie.setEnabled(false);
+					zwolnij.setEnabled(false);
 				timer.setDelay(opoznienie--);
 
 			}
@@ -88,7 +88,7 @@ public class Ramka extends JPanel {
 
 			public void actionPerformed(ActionEvent e) {
 				timer.setDelay(opoznienie++);
-				zwiekszOpoznienie.setEnabled(true);
+				zwolnij.setEnabled(true);
 			}
 		});
 
@@ -97,8 +97,8 @@ public class Ramka extends JPanel {
 		panelGorny.add(start);
 		panelGorny.add(dodaj);
 		panelGorny.add(wybierzPredkosc);
-		panelGorny.add(zwiekszOpoznienie);
-		panelGorny.add(zmniejszOpoznienie);
+		panelGorny.add(zwolnij);
+		panelGorny.add(przyspiesz);
 
 		setLayout(new BorderLayout());
 		add(panelGorny, BorderLayout.PAGE_START);
