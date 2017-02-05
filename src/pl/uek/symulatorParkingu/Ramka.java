@@ -73,22 +73,22 @@ public class Ramka extends JPanel {
 			}
 		});
 
-		JButton zwiekszOpoznienie = new JButton("+");
-		zwiekszOpoznienie.addActionListener(new ActionListener() {
+		JButton przyspiesz = new JButton("+");
+		przyspiesz.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (opoznienie == 1)
-					zwolnij.setEnabled(false);
+					przyspiesz.setEnabled(false);
 				timer.setDelay(opoznienie--);
 
 			}
 		});
 
-		JButton zmniejszOpoznienie = new JButton("-");
-		zmniejszOpoznienie.addActionListener(new ActionListener() {
+		JButton zwolnij = new JButton("-");
+		zwolnij.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				timer.setDelay(opoznienie++);
-				zwolnij.setEnabled(true);
+				przyspiesz.setEnabled(true);
 			}
 		});
 
